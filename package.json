@@ -1,0 +1,59 @@
+{
+  "name": "vue3-family-tree-export",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Vue3家谱树导出组件 - 支持自定义样式配置和高质量图片导出",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc && vite build",
+    "build:lib": "vite build --mode lib",
+    "preview": "vite preview",
+    "type-check": "vue-tsc --noEmit"
+  },
+  "keywords": [
+    "vue3",
+    "family-tree",
+    "export",
+    "genealogy",
+    "tree-view",
+    "family",
+    "组件",
+    "家谱"
+  ],
+  "author": {
+    "name": "Family Tree Team",
+    "email": "1753056976@qq.com"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/vue3-family-tree-export.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/vue3-family-tree-export/issues"
+  },
+  "homepage": "https://github.com/your-username/vue3-family-tree-export#readme",
+  "peerDependencies": {
+    "vue": "^3.0.0"
+  },
+  "dependencies": {
+    "html-to-image": "^1.11.11"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.4",
+    "@vitejs/plugin-vue": "^4.5.2",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.32",
+    "tailwindcss": "^3.3.6",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.8",
+    "vue": "^3.3.11",
+    "vue-tsc": "^1.8.25"
+  }
+}
