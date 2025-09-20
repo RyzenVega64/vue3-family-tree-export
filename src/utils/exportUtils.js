@@ -12,9 +12,15 @@ export const exportFamilyTree = async (
   backgroundColor = "#f9fafb"
 ) => {
   try {
+    console.log("开始导出");
+
+    // 让出主线程，确保UI更新完成
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
     // 获取DOM的实际宽高（包括滚动区域外的内容）
     const width = element.scrollWidth;
     const height = element.scrollHeight;
+    console.log(`获取到DOM尺寸 - 宽度: ${width}, 高度: ${height}`);
 
     // 构建尺寸信息对象
     const params = {
@@ -24,6 +30,7 @@ export const exportFamilyTree = async (
       backgroundColor, // 传递背景色
     };
 
+    console.log("准备DOM元素");
     // 获取尺寸成功后，调用exportToCanvas
     await exportToCanvas(params);
   } catch (error) {
@@ -65,6 +72,11 @@ export const exportToCanvas = async (params) => {
   }
 
   try {
+    console.log("开始生成图片");
+
+    // 让出主线程，确保DOM渲染完成
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
     // 动态调用对应的htmlToImage函数
     const dataUrl = await htmlToImage[formatConfig.func](params.element, {
       backgroundColor: params.backgroundColor || "#f9fafb", // 背景颜色，优先使用自定义
@@ -75,6 +87,7 @@ export const exportToCanvas = async (params) => {
       cacheBust: true, // 是否缓存
       quality: 1, // 固定最高质量（仅JPEG格式生效）
     });
+    console.log("图片生成完毕");
 
     // 调用下载函数，使用对应的格式
     await downloadImage(dataUrl, formatConfig.format);
@@ -91,6 +104,7 @@ export const exportToCanvas = async (params) => {
  */
 export const downloadImage = async (dataUrl, format) => {
   try {
+    console.log("开始下载流程");
     // 验证dataUrl格式
     if (
       !dataUrl ||
@@ -118,7 +132,7 @@ export const downloadImage = async (dataUrl, format) => {
     // 清理DOM
     link.remove();
 
-    console.log("图片下载成功");
+    console.log("下载完成");
   } catch (error) {
     console.error(`下载失败：${error.message || "请重试"}`);
     throw error;

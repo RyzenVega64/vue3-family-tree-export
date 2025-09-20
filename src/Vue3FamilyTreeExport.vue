@@ -167,6 +167,11 @@ const handleExport = async () => {
     emit("export-error", error.message || "导出失败");
   }
 };
+
+// 暴露方法给父组件使用
+defineExpose({
+  handleExport,
+});
 </script>
 
 <template>
