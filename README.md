@@ -11,7 +11,7 @@
 - ✅ **世系尺显示** - 支持传统家谱世系尺展示
 - ✅ **配偶关系** - 完整的配偶信息展示和配置
 - ✅ **TypeScript 友好** - 提供完整的类型定义
-- ✅ **无外部依赖** - 轻量级，仅依赖 Vue3 和 html-to-image
+- ✅ **无外部依赖** - 轻量级，仅依赖 Vue3
 
 ## 📦 安装
 
@@ -103,6 +103,7 @@ const handleExportError = (error) => {
 <template>
   <div>
     <Vue3FamilyTreeExport
+      ref="treeExportRef"
       :data="treeData"
       :ruler-data="rulerData"
       :background-color="backgroundColor"
@@ -115,11 +116,20 @@ const handleExportError = (error) => {
       @export-success="handleExportSuccess"
       @export-error="handleExportError"
     />
+
+    <!-- 导出 -->
+    <button @click="handleManualExport">
+      导出家谱为PNG
+     </button>
   </div>
 </template>
 
 <script setup>
+import { ref } from "vue";
 import Vue3FamilyTreeExport from "vue3-family-tree-export";
+
+// 组件引用
+const treeExportRef = ref(null);
 
 // 家族树数据（同上）
 const treeData = [
@@ -206,6 +216,18 @@ const displayConfig = {
   showSpouseIdentity: true,
   showTitle: true,
   showIntro: true,
+};
+
+// 组件内置的导出方法 使用 html-to-image 库
+// 亦可使用第三方库导出
+const handleManualExport = async () => {
+  if (treeExportRef.value) {
+    try {
+      await treeExportRef.value.handleExport();
+    } catch (error) {
+      console.error("导出失败:", error);
+    }
+  }
 };
 
 // 事件处理函数
