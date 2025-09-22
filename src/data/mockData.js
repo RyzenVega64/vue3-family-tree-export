@@ -127,6 +127,9 @@ const FEMALE_NAMES = [
 // 配偶身份类型 - 传统家族中配偶的不同身份
 const SPOUSE_IDENTITIES = ["妻", "妾", "继室", "填房"];
 
+// 家族树生成配置 - 可配置的静态变量
+export const DEFAULT_NODE_COUNT = 80; // 默认生成节点数量
+
 /**
  * 生成随机中文名字
  * @param {number} gender - 性别 1-男性，2-女性
@@ -168,10 +171,10 @@ const generateSpouse = (nodeId, mainSurname) => {
 
 /**
  * 生成家族树数据的函数
- * @param {number} totalNodes - 要生成的节点总数，默认50
+ * @param {number} totalNodes - 要生成的节点总数，默认使用 DEFAULT_NODE_COUNT
  * @returns {Array} 家族树根节点数组
  */
-export const generateMockTreeData = (totalNodes = 50) => {
+export const generateMockTreeData = (totalNodes = DEFAULT_NODE_COUNT) => {
   if (totalNodes < 1) return [];
 
   const familySurname = SURNAMES[0]; // 使用张姓作为家族姓氏
@@ -263,8 +266,8 @@ export const generateMockTreeData = (totalNodes = 50) => {
   return rootNodes;
 };
 
-// 默认的mock数据（50个节点） - 用于组件的默认展示
-export const mockTreeData = generateMockTreeData(50);
+// 默认的mock数据 - 用于组件的默认展示，使用 DEFAULT_NODE_COUNT 配置
+export const mockTreeData = generateMockTreeData();
 
 /**
  * 数字转中文

@@ -3,8 +3,9 @@
  * 负责切片导出流程控制、DOM切片处理、后端交互模拟
  */
 
-import * as htmlToImage from "html-to-image";
+import html2canvas from "html2canvas";
 import { sliceStorage, generateExportId } from "./storageManager.js";
+import { downloadImage } from "./basicExport.js";
 
 // 切片配置
 export const SLICE_CONFIG = {
@@ -71,45 +72,30 @@ export class DOMSlicer {
    * 渲染单个切片
    */
   async renderSlice(sliceInfo) {
-    const { x, y, width, height } = sliceInfo;
-
-    // 创建临时容器来裁剪视图
-    const tempContainer = document.createElement("div");
-    tempContainer.style.position = "absolute";
-    tempContainer.style.left = "-9999px";
-    tempContainer.style.top = "-9999px";
-    tempContainer.style.width = `${width}px`;
-    tempContainer.style.height = `${height}px`;
-    tempContainer.style.overflow = "hidden";
-    tempContainer.style.backgroundColor = this.options.backgroundColor;
-
-    // 克隆原始元素
-    const clonedElement = this.element.cloneNode(true);
-    clonedElement.style.position = "relative";
-    clonedElement.style.left = `-${x}px`;
-    clonedElement.style.top = `-${y}px`;
-
-    tempContainer.appendChild(clonedElement);
-    document.body.appendChild(tempContainer);
+    const { x, y, width, height, index } = sliceInfo;
 
     try {
       // 等待DOM更新
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
-      // 生成图片
-      const dataUrl = await htmlToImage.toPng(tempContainer, {
+      // 使用html2canvas的切片属性直接截取指定区域
+      const canvas = await html2canvas(this.element, {
         backgroundColor: this.options.backgroundColor,
         width: width,
         height: height,
-        pixelRatio: window.devicePixelRatio || 1,
-        skipAutoScale: false,
-        cacheBust: true,
+        x: x,
+        y: y,
+        scrollX: 0,
+        scrollY: 0,
+        foreignObjectRendering: true,
       });
 
+      // 转换为DataURL
+      const dataUrl = canvas.toDataURL("image/png");
+
       return dataUrl;
-    } finally {
-      // 清理临时元素
-      document.body.removeChild(tempContainer);
+    } catch (error) {
+      throw new Error(`切片渲染失败：${error.message || "未知错误"}`);
     }
   }
 }

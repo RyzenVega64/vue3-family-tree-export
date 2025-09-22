@@ -3,19 +3,10 @@
  * 负责常规导出、Canvas生成、文件下载
  */
 
-import * as htmlToImage from "html-to-image";
+import html2canvas from "html2canvas";
 
-// 下载文件格式配置
-export const FILE_FORMAT_OPTIONS = {
-  png: {
-    func: "toPng",
-    format: "png",
-  },
-  jpeg: {
-    func: "toJpeg",
-    format: "jpeg",
-  },
-};
+// 固定导出格式
+const FILE_FORMAT = "PNG";
 
 /**
  * Canvas导出和下载功能 - 只接受尺寸信息
@@ -31,35 +22,26 @@ export const exportToCanvas = async (params) => {
     throw new Error("尺寸信息或DOM元素无效");
   }
 
-  // 下载文件格式
-  const fileFormat = "png";
-
-  // 根据格式获取对应的配置
-  const formatConfig = FILE_FORMAT_OPTIONS[fileFormat];
-  if (!formatConfig) {
-    throw new Error(`不支持的文件格式: ${fileFormat}`);
-  }
-
   try {
     console.log("开始生成图片");
 
     // 让出主线程，确保DOM渲染完成
     await new Promise((resolve) => setTimeout(resolve, 50));
 
-    // 动态调用对应的htmlToImage函数
-    const dataUrl = await htmlToImage[formatConfig.func](params.element, {
-      backgroundColor: params.backgroundColor || "#f9fafb", // 背景颜色，优先使用自定义
-      width: params.width, // 宽度
-      height: params.height, // 高度
-      pixelRatio: window.devicePixelRatio || 1, // 像素比
-      skipAutoScale: false, // 是否跳过自动缩放
-      cacheBust: true, // 是否缓存
-      quality: 1, // 固定最高质量（仅JPEG格式生效）
+    // 使用html2canvas生成图片
+    const canvas = await html2canvas(params.element, {
+      backgroundColor: params.backgroundColor || "#f9fafb", // 设置背景颜色
+      width: params.width, // 设置导出宽度
+      height: params.height, // 设置导出高度
+      foreignObjectRendering: true, // 启用foreignObjectRendering
     });
+
+    // 转换为DataURL
+    const dataUrl = canvas.toDataURL("image/png");
     console.log("图片生成完毕");
 
-    // 调用下载函数，使用对应的格式
-    await downloadImage(dataUrl, formatConfig.format);
+    // 调用下载函数，固定使用PNG格式
+    await downloadImage(dataUrl, FILE_FORMAT.toLowerCase());
   } catch (error) {
     throw new Error(`图片生成失败：${error.message || "未知错误"}`);
   }
