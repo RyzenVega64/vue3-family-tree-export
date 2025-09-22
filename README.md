@@ -191,7 +191,7 @@ const connectionLinesConfig = {
 
 // 侧边配置
 const sideConfig = {
-  mainTitle: "张氏家族世系图",
+  mainTitle: "家族世系图",
   mainTitleFontFamily: "鸿雷新书, serif",
   mainTitleFontColor: "#444",
   mainTitleFontSize: "46px",

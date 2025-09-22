@@ -69,69 +69,90 @@ watch(
   { deep: true }
 );
 
+// 立即初始化配置（在组件创建时）
+const initConfig = () => {
+  // 合并传入的配置到全局配置
+  const configUpdates = {};
+
+  if (Object.keys(props.generationRulerConfig).length > 0) {
+    configUpdates.typography = {
+      ...treeConfig.config.typography,
+      ...props.generationRulerConfig,
+    };
+  }
+
+  if (Object.keys(props.nodeConfig).length > 0) {
+    configUpdates.typography = {
+      ...(configUpdates.typography || treeConfig.config.typography),
+      ...props.nodeConfig,
+    };
+  }
+
+  if (Object.keys(props.spouseConfig).length > 0) {
+    configUpdates.typography = {
+      ...(configUpdates.typography || treeConfig.config.typography),
+      ...props.spouseConfig,
+    };
+  }
+
+  if (Object.keys(props.connectionLinesConfig).length > 0) {
+    configUpdates.connectionLines = {
+      ...treeConfig.config.connectionLines,
+      ...props.connectionLinesConfig,
+    };
+  }
+
+  if (Object.keys(props.sideConfig).length > 0) {
+    configUpdates.sideConfig = {
+      ...treeConfig.config.sideConfig,
+      ...props.sideConfig,
+    };
+  }
+
+  if (Object.keys(props.displayConfig).length > 0) {
+    configUpdates.display = {
+      ...treeConfig.config.display,
+      ...props.displayConfig,
+    };
+  }
+
+  // 更新全局配置
+  if (Object.keys(configUpdates).length > 0) {
+    treeConfig.updateConfig(configUpdates);
+  }
+};
+
+// 立即执行配置初始化
+initConfig();
+
 onMounted(() => {
-  initComponent();
+  initContainerHeight();
 });
 
-// 初始化配置和容器高度
-const initComponent = async () => {
+// 初始化容器高度
+const initContainerHeight = async () => {
   try {
-    // 合并传入的配置到全局配置
-    const configUpdates = {};
-
-    if (Object.keys(props.generationRulerConfig).length > 0) {
-      configUpdates.typography = {
-        ...treeConfig.config.typography,
-        ...props.generationRulerConfig,
-      };
-    }
-
-    if (Object.keys(props.nodeConfig).length > 0) {
-      configUpdates.typography = {
-        ...(configUpdates.typography || treeConfig.config.typography),
-        ...props.nodeConfig,
-      };
-    }
-
-    if (Object.keys(props.spouseConfig).length > 0) {
-      configUpdates.typography = {
-        ...(configUpdates.typography || treeConfig.config.typography),
-        ...props.spouseConfig,
-      };
-    }
-
-    if (Object.keys(props.connectionLinesConfig).length > 0) {
-      configUpdates.connectionLines = {
-        ...treeConfig.config.connectionLines,
-        ...props.connectionLinesConfig,
-      };
-    }
-
-    if (Object.keys(props.sideConfig).length > 0) {
-      configUpdates.sideConfig = {
-        ...treeConfig.config.sideConfig,
-        ...props.sideConfig,
-      };
-    }
-
-    if (Object.keys(props.displayConfig).length > 0) {
-      configUpdates.display = {
-        ...treeConfig.config.display,
-        ...props.displayConfig,
-      };
-    }
-
-    // 更新全局配置
-    if (Object.keys(configUpdates).length > 0) {
-      treeConfig.updateConfig(configUpdates);
-    }
-
     // 等待DOM更新后获取节点高度信息
     await nextTick();
+
+    // 添加额外延迟确保DOM完全渲染
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
     // 获取容器高度信息
-    await getContainerHeight(treeNodesContainerRef.value);
+    const height = getContainerHeight(treeNodesContainerRef.value);
+    if (height > 0) {
+      containerHeight.value = height;
+    } else {
+      // 如果高度为0，再次尝试
+      console.log("首次获取高度为0，500ms后重试...");
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      const retryHeight = getContainerHeight(treeNodesContainerRef.value);
+      if (retryHeight > 0) {
+        containerHeight.value = retryHeight;
+      }
+    }
   } catch (error) {
-    console.error("初始化组件失败：", error);
+    console.error("初始化容器高度失败：", error);
   }
 };
 
@@ -139,6 +160,8 @@ const initComponent = async () => {
 const mainContainerRef = ref(null);
 // 树节点容器引用
 const treeNodesContainerRef = ref(null);
+// 容器高度状态
+const containerHeight = ref(0);
 
 // 计算容器样式
 const containerStyle = computed(() => ({
@@ -175,24 +198,24 @@ defineExpose({
 </script>
 
 <template>
-  <div class="w-fit" :style="containerStyle">
+  <div class="tree-export-wrapper" :style="containerStyle">
     <!-- 主容器 -->
-    <div
-      ref="mainContainerRef"
-      id="target"
-      class="flex items-center gap-24 p-12"
-    >
+    <div ref="mainContainerRef" id="target" class="main-container">
       <!-- 固定在左侧的世系尺 -->
-      <GenerationRuler :tree-data="treeData" :ruler-data="props.rulerData" />
+      <GenerationRuler
+        :tree-data="treeData"
+        :ruler-data="props.rulerData"
+        :container-height="containerHeight"
+      />
 
       <!-- 树节点容器 -->
-      <div class="flex items-start gap-36" ref="treeNodesContainerRef">
+      <div ref="treeNodesContainerRef" class="tree-nodes-container">
         <!-- 直接循环渲染根节点组件 -->
         <OrgTreeNode
           v-for="rootNode in treeData"
           :key="rootNode.id"
           :node="rootNode"
-          class="flex-shrink-0"
+          class="root-node"
         />
       </div>
 
@@ -202,4 +225,25 @@ defineExpose({
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.tree-export-wrapper {
+  width: fit-content;
+}
+
+.main-container {
+  display: flex;
+  align-items: center;
+  gap: 96px;
+  padding: 48px;
+}
+
+.tree-nodes-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 144px;
+}
+
+.root-node {
+  flex-shrink: 0;
+}
+</style>

@@ -8,12 +8,11 @@ const displayConfig = computed(() => treeConfig.config.display);
 
 <template>
   <!-- 侧边信息区域 - 包含简介和标题 -->
-  <div class="flex gap-6 h-full w-fit items-center h-1/2">
+  <div class="side-info-container">
     <!-- 简介文本 -->
     <div
       v-if="displayConfig.showIntro"
-      class="leading-8 overflow-hidden break-words break-all"
-      style="writing-mode: vertical-rl; direction: ltr"
+      class="intro-text"
       :style="{
         fontFamily: sideConfig.introFontFamily,
         color: sideConfig.introFontColor,
@@ -28,8 +27,7 @@ const displayConfig = computed(() => treeConfig.config.display);
     <!-- 标题 -->
     <h1
       v-if="displayConfig.showTitle"
-      class="w-24 flex items-center justify-center font-bold"
-      style="writing-mode: vertical-lr"
+      class="main-title"
       :style="{
         fontFamily: sideConfig.mainTitleFontFamily,
         color: sideConfig.mainTitleFontColor,
@@ -44,5 +42,31 @@ const displayConfig = computed(() => treeConfig.config.display);
 </template>
 
 <style scoped>
-/* 组件特定样式 */
+.side-info-container {
+  display: flex;
+  gap: 24px;
+  height: 100%;
+  width: fit-content;
+  align-items: center;
+  height: 50%;
+}
+
+.intro-text {
+  max-height: 70%;
+  line-height: 32px;
+  overflow: hidden;
+  word-break: break-word;
+  word-wrap: break-word;
+  writing-mode: vertical-rl;
+  direction: ltr;
+}
+
+.main-title {
+  width: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  writing-mode: vertical-lr;
+}
 </style>

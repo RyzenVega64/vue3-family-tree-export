@@ -25,7 +25,7 @@ const typographyConfig = computed(() => treeConfig.config.typography);
 const displayConfig = computed(() => treeConfig.config.display);
 
 // 获取连接线配置
-const connectionLines = computed(() => treeConfig.config.connectionLines);
+const connectionLinesConfig = computed(() => treeConfig.config.connectionLines);
 
 // 计算配偶总宽度
 const calculateSpousesTotalWidth = () => {
@@ -89,8 +89,9 @@ const childrenContainerStyle = computed(() => ({
 
 // 计算连接线总高度：两段垂直连接线高度 + 水平连接线厚度 + 装饰圆点半径
 const connectionLineHeight = computed(() => {
-  const verticalLineHeight = connectionLines.value.verticalLineHeight * 2;
-  const thickness = connectionLines.value.thickness;
+  const config = connectionLinesConfig.value;
+  const verticalLineHeight = config.verticalLineHeight * 2;
+  const thickness = config.thickness;
   const dotDiameter = LAYOUT_CONFIG.dotDiameter;
   const totalHeight = verticalLineHeight + thickness + dotDiameter;
   return `${totalHeight}px`;
@@ -185,27 +186,23 @@ onMounted(() => {
 </script>
 
 <template>
-  <div
-    class="flex flex-col items-center relative"
-    :data-generation="node.shi_dai"
-  >
+  <div class="tree-node-wrapper" :data-generation="node.shi_dai">
     <!-- 节点内容 -->
-    <div ref="nodeContainer" class="relative">
+    <div ref="nodeContainer" class="node-container">
       <!-- 节点 -->
       <div
-        class="flex items-center overflow-hidden"
+        class="node-content"
         :style="{
           padding: nodeStyles.mainNodePadding,
           height: nodeStyles.mainNodeHeight,
         }"
       >
-        <div class="flex">
+        <div class="node-flex">
           <!-- 节点信息 -->
-          <div class="text-left flex justify-center items-end">
+          <div class="node-info">
             <!-- 姓名 -->
             <div
-              class="tracking-wide"
-              style="writing-mode: vertical-lr"
+              class="name-text"
               :style="{
                 fontFamily: typographyConfig.mainNodeFontFamily,
                 color: typographyConfig.mainNodeFontColor,
@@ -224,8 +221,7 @@ onMounted(() => {
             <!-- 排行信息 -->
             <div
               v-if="node.ranking && displayConfig.showMainNodeRanking"
-              class="flex items-center justify-center"
-              style="writing-mode: vertical-lr"
+              class="ranking-text"
               :style="{
                 fontFamily: typographyConfig.rankingFontFamily,
                 fontSize: typographyConfig.rankingFontSize,
@@ -246,14 +242,14 @@ onMounted(() => {
               node.spouses.length > 0 &&
               displayConfig.showSpouses
             "
-            class="flex items-end"
+            class="spouse-list"
             :style="spouseListStyle"
           >
             <div
               v-for="(spouse, index) in node.spouses"
               :key="spouse.id"
               :ref="(el) => setSpouseRef(el, index)"
-              class="flex items-end"
+              class="spouse-item"
               :style="{
                 fontFamily: typographyConfig.spouseFontFamily,
                 color: typographyConfig.spouseFontColor,
@@ -263,14 +259,13 @@ onMounted(() => {
                   : 'normal',
               }"
             >
-              <div class="tracking-wide" style="writing-mode: vertical-lr">
+              <div class="spouse-name">
                 <span v-if="spouse.last_name">{{ spouse.last_name }}</span>
                 <span>{{ spouse.name }}</span>
               </div>
               <div
-                class="text-center"
-                style="writing-mode: vertical-lr"
                 v-if="displayConfig.showSpouseIdentity"
+                class="spouse-relation"
                 :style="{
                   fontFamily: typographyConfig.spouseRelationFontFamily,
                   fontSize: typographyConfig.spouseRelationFontSize,
@@ -289,11 +284,15 @@ onMounted(() => {
     </div>
 
     <!-- 子节点容器 - 显示所有子节点（包括盲代节点），但连接线只连接非盲代节点 -->
-    <div v-if="hasChildren" class="relative" :style="childrenWrapperStyle">
+    <div
+      v-if="hasChildren"
+      class="children-wrapper"
+      :style="childrenWrapperStyle"
+    >
       <!-- 子节点容器 -->
       <div
         ref="childrenContainer"
-        class="flex items-start"
+        class="children-container"
         :style="childrenContainerStyle"
       >
         <!-- 直接循环渲染子节点组件 -->
@@ -302,7 +301,7 @@ onMounted(() => {
           :key="child.id"
           :ref="(el) => setChildRef(el, index)"
           :node="child"
-          class="flex flex-col items-center flex-shrink-0"
+          class="child-node"
         />
       </div>
 
@@ -318,5 +317,79 @@ onMounted(() => {
 </template>
 
 <style scoped>
-/* 组件特定样式 */
+.tree-node-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.node-container {
+  position: relative;
+}
+
+.node-content {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.node-flex {
+  display: flex;
+}
+
+.node-info {
+  text-align: left;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.name-text {
+  letter-spacing: 0.025em;
+  writing-mode: vertical-lr;
+}
+
+.ranking-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  writing-mode: vertical-lr;
+}
+
+.spouse-list {
+  display: flex;
+  align-items: flex-end;
+}
+
+.spouse-item {
+  display: flex;
+  align-items: flex-end;
+}
+
+.spouse-name {
+  letter-spacing: 0.025em;
+  writing-mode: vertical-lr;
+}
+
+.spouse-relation {
+  text-align: center;
+  writing-mode: vertical-lr;
+}
+
+.children-wrapper {
+  position: relative;
+}
+
+.children-container {
+  display: flex;
+  align-items: flex-start;
+}
+
+.child-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
 </style>

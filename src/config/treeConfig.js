@@ -82,12 +82,22 @@ export const defaultConfig = {
 class TreeConfigManager {
   constructor() {
     this.config = { ...defaultConfig };
-    this.containerHeight = 0;
   }
 
-  // 更新配置
+  // 更新配置 - 深度合并
   updateConfig(newConfig) {
-    this.config = { ...this.config, ...newConfig };
+    // 深度合并配置对象
+    Object.keys(newConfig).forEach((key) => {
+      if (
+        typeof newConfig[key] === "object" &&
+        newConfig[key] !== null &&
+        !Array.isArray(newConfig[key])
+      ) {
+        this.config[key] = { ...this.config[key], ...newConfig[key] };
+      } else {
+        this.config[key] = newConfig[key];
+      }
+    });
   }
 
   // 获取配置

@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from "vue";
+import { computed, ref } from "vue";
 import { treeConfig } from "@/config/treeConfig";
 import { mockBaiBieList, numberToChinese } from "@/data/mockData";
 import { LAYOUT_CONFIG } from "@/config/treeStyles";
@@ -14,10 +14,11 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  containerHeight: {
+    type: Number,
+    default: 0,
+  },
 });
-
-// 容器高度信息
-const containerHeight = computed(() => treeConfig.containerHeight);
 
 // 连接线配置
 const connectionLinesConfig = computed(() => treeConfig.config.connectionLines);
@@ -75,16 +76,17 @@ const rulerInfo = computed(() => {
 
 // 计算世代间隔
 const connectionLineHeight = computed(() => {
-  const verticalHeight = connectionLinesConfig.value.verticalLineHeight * 2; // 两段垂直连接线高度
-  const thickness = connectionLinesConfig.value.thickness; // 水平连接线厚度
-  const dotDiameter = LAYOUT_CONFIG.dotDiameter; // 装饰圆点半径
-  const totalGap = verticalHeight + thickness + dotDiameter; // 总间隔
-  return `${totalGap}px`;
+  const config = connectionLinesConfig.value;
+  const verticalLineHeight = config.verticalLineHeight * 2;
+  const thickness = config.thickness;
+  const dotDiameter = LAYOUT_CONFIG.dotDiameter;
+  const totalHeight = verticalLineHeight + thickness + dotDiameter;
+  return `${totalHeight}px`;
 });
 
 // 计算wrapper的样式
 const wrapperStyle = computed(() => ({
-  height: `${containerHeight.value}px`, // 容器高度
+  height: props.containerHeight > 0 ? `${props.containerHeight}px` : "auto", // 容器高度，为0时使用auto
   gap: connectionLineHeight.value, // 世代间隔
 }));
 </script>
@@ -92,21 +94,20 @@ const wrapperStyle = computed(() => ({
 <template>
   <div
     v-if="displayConfig.showGenerationRuler"
-    class="sticky top-0 left-0 z-10 flex flex-col items-center"
+    class="generation-ruler-wrapper"
     :style="wrapperStyle"
   >
     <div
       v-for="(item, index) in rulerInfo"
       :key="index"
-      class="flex items-center gap-1 min-w-11 overflow-hidden relative"
+      class="ruler-item"
       :style="{
         height: treeConfig.config.typography.mainNodeHeight,
       }"
     >
       <!-- 世代文字 -->
       <div
-        class="leading-none text-sm whitespace-nowrap"
-        style="writing-mode: vertical-rl"
+        class="generation-text"
         :style="{
           fontFamily: rulerFontConfig.fontFamily,
           fontSize: typographyConfig.generationFontSize,
@@ -120,8 +121,7 @@ const wrapperStyle = computed(() => ({
       <!-- 字辈文字 -->
       <div
         v-if="displayConfig.showBaiBie && item.baiBie && item.baiBie.trim()"
-        class="leading-none text-sm whitespace-nowrap"
-        style="writing-mode: vertical-rl"
+        class="baibie-text"
         :style="{
           fontFamily: rulerFontConfig.fontFamily,
           fontSize: typographyConfig.baiBieFontSize,
@@ -136,5 +136,30 @@ const wrapperStyle = computed(() => ({
 </template>
 
 <style scoped>
-/* 组件特定样式 */
+.generation-ruler-wrapper {
+  position: sticky;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ruler-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 44px;
+  overflow: hidden;
+  position: relative;
+}
+
+.generation-text,
+.baibie-text {
+  line-height: 1;
+  font-size: 14px;
+  white-space: nowrap;
+  writing-mode: vertical-rl;
+}
 </style>

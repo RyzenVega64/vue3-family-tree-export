@@ -71,15 +71,15 @@ const connectionLinesConfig = ref({
 
 // 侧边设置配置
 const sideConfig = ref({
-  mainTitle: "张氏家族世系图",
-  mainTitleFontFamily: "鸿雷新书, serif",
+  mainTitle: "家族世系图",
+  mainTitleFontFamily: "KaiTi, serif",
   mainTitleFontColor: "#1e3a8a",
   mainTitleFontSize: "48px",
   mainTitleFontWeight: true,
   mainTitleLetterSpacing: 12,
   intro:
     "张氏家族源远流长，世代传承。这份族谱记录了家族成员的血脉关系，承载着深厚的历史文化底蕴。每一个节点都诉说着先祖的智慧与传承，每一条连线都见证着血脉的延续。愿家族精神代代相传，荣光永续。",
-  introFontFamily: "临海隶书, serif",
+  introFontFamily: "KaiTi, serif",
   introFontColor: "#374151",
   introFontSize: "16px",
   introFontWeight: false,
@@ -127,7 +127,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-100">
+  <div class="app-container">
     <!-- 家谱导出组件 -->
     <Vue3FamilyTreeExport
       ref="treeExportRef"
@@ -145,11 +145,7 @@ onMounted(() => {
     />
 
     <!-- 悬浮导出按钮 -->
-    <button
-      @click="handleFloatingExport"
-      class="downLoad-btn"
-      title="导出家谱"
-    >
+    <button @click="handleFloatingExport" class="downLoad-btn" title="导出家谱">
       ⬇
     </button>
   </div>
@@ -169,14 +165,8 @@ onMounted(() => {
   padding: 6px 16px;
   font-weight: 600;
   text-shadow: 0 1px 0 #fff;
-  box-shadow: 
-    inset 0 1px 0 0 #f4f4f4, 
-    0 1px 0 0 #efefef,
-    0 2px 0 0 #ececec, 
-    0 4px 0 0 #e0e0e0, 
-    0 5px 0 0 #dedede,
-    0 6px 0 0 #dcdcdc, 
-    0 7px 0 0 #cacaca, 
+  box-shadow: inset 0 1px 0 0 #f4f4f4, 0 1px 0 0 #efefef, 0 2px 0 0 #ececec,
+    0 4px 0 0 #e0e0e0, 0 5px 0 0 #dedede, 0 6px 0 0 #dcdcdc, 0 7px 0 0 #cacaca,
     0 7px 8px 0 #cecece;
   transition: 0.15s ease;
   cursor: pointer;
@@ -185,14 +175,8 @@ onMounted(() => {
 
 .downLoad-btn:active {
   translate: 0 4px;
-  box-shadow: 
-    inset 0 0.5px 0 0 #f4f4f4, 
-    0 0.5px 0 0 #efefef,
-    0 1px 0 0 #ececec, 
-    0 2px 0 0 #e0e0e0, 
-    0 2px 0 0 #dedede,
-    0 3.2px 0 0 #dcdcdc, 
-    0 4px 0 0 #cacaca, 
+  box-shadow: inset 0 0.5px 0 0 #f4f4f4, 0 0.5px 0 0 #efefef, 0 1px 0 0 #ececec,
+    0 2px 0 0 #e0e0e0, 0 2px 0 0 #dedede, 0 3.2px 0 0 #dcdcdc, 0 4px 0 0 #cacaca,
     0 4px 6px 0 #cecece;
 }
 </style>

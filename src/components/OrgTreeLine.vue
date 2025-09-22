@@ -109,7 +109,7 @@ const lineStyleProps = computed(() => ({
   <!-- 连接线容器 -->
   <svg
     v-if="hasVisibleConnections && containerWidth > 0"
-    class="absolute top-0 left-0 pointer-events-none z-10"
+    class="connection-lines"
     :width="containerWidth"
     :height="connectionLineHeight"
   >
@@ -158,5 +158,11 @@ const lineStyleProps = computed(() => ({
 </template>
 
 <style scoped>
-/* 组件特定样式 */
+.connection-lines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 10;
+}
 </style>
